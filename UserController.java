@@ -1,86 +1,85 @@
 package com.javatpoint;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.stereotype.Controller;  
-import org.springframework.web.bind.annotation.ModelAttribute;  
-import org.springframework.web.bind.annotation.RequestMapping;  
-import org.springframework.web.bind.annotation.RequestMethod;  
-import org.springframework.web.servlet.ModelAndView;  
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Controller;   
+import org.springframework.web.bind.annotation.RequestMapping;    
+import org.springframework.web.servlet.ModelAndView;
+
+import com.database.DatabaseConfigurer;
+import com.database.UserDao;  
+
 @Controller  
 public class UserController {  
-//	List<User> userList;
-	HashMap<String, User> userList;
-	User currentUser;
 
-	public UserController(){	
-		userList=new HashMap<>(); 
-		currentUser = null;
+	HashMap<String, User> userList;
+	
+	UserDao userDao;
+
+	public UserController() throws ClassNotFoundException{	
+		userList=new HashMap<>();
+		JdbcTemplate jdbcTemplate = DatabaseConfigurer.getInstance();
+		this.userDao = new UserDao(jdbcTemplate);
 	}
 
 	@RequestMapping("/SignInForm")  
-	public ModelAndView showform(){  
-		//command is a reserved request attribute name, now use <form> tag to show object data  
-		return new ModelAndView("SignInForm","command",new User());  
+	public ModelAndView showform(HttpServletRequest request,HttpServletResponse res){
+		String message = request.getParameter("message");
+		return new ModelAndView("SignInForm","message",message);  
 	}
-	
+
 
 	@RequestMapping("/SignUpForm")  
 	public ModelAndView signupform(){  
-		//		 String message = "Hello 594";  
-		//	        return new ModelAndView("hellopage", "message", message);   
-		return new ModelAndView("SignUpForm","command",new User()); 
+		return new ModelAndView("SignUpForm"); 
 	} 
 
-	@RequestMapping(value="/save",method = RequestMethod.POST)  
-	public ModelAndView save(User user){
-		//		@ModelAttribute("user") 
-		//write code to save emp object  
-		//here, we are displaying emp object to prove emp has data  
-		user.setPoints(50);
-		String name = user.getName();
-		if(userList.containsKey(name)){
-			User u = userList.get(name);
-			if(u.getPassword().equals(user.getPassword())){
-				currentUser = u;
-//				System.out.println("enter correctly");
-				return new ModelAndView("redirect:/UserHomePage");
-			}else{
-//				System.out.println("enter not correctly");
-				String message = "Try again. Password not correct.";
-				return new ModelAndView("redirect:/SignInForm", "message", message);
-			}
-		}
-		
-//		System.out.println("new user created");
-		currentUser = user;
-		userList.put(user.getName(), user);
-		user.setId(userList.size());
+	@RequestMapping("/signup")  
+	public ModelAndView signup(HttpServletRequest request,HttpServletResponse res){
 
-		//		System.out.println(user.getName()+" "+user.getPoints());  
-		return new ModelAndView("redirect:/UserHomePage");//will redirect to viewemp request mapping  
+		String name=request.getParameter("name");  
+		String password=request.getParameter("password"); 
+
+		User user = new User(name, password);
+//		userList.put(user.getName(), user);
+//		user.setId(userList.size());
+		user.setPoints(50);
+		userDao.saveUser(user);
+		return new ModelAndView("redirect:/UserHomePage", "name", name);
+
+
 	}  
 
-	@RequestMapping("/viewemp")  
-	public ModelAndView viewemp(){  
-		//write the code to get all employees from DAO  
-		//here, we are writing manual code of list for easy understanding  
-		return new ModelAndView("viewemp","list",userList);  
+	@RequestMapping("/signin")  
+	public ModelAndView viewemp(HttpServletRequest request,HttpServletResponse res){  
+
+		String name=request.getParameter("name");  
+		String password=request.getParameter("password"); 
+		User u = userDao.getUser(name);
+
+//		if(userList.containsKey(name)){
+//			User u = userList.get(name);
+		if (u != null) {
+			if(u.getPassword().equals(password)){
+				return new ModelAndView("redirect:/UserHomePage", "name", name);
+			}else{
+				String message = "Password is not correct. Please try again.";
+				return new ModelAndView("redirect:/SignInForm", "message", message);
+			}
+		}else{
+			String message = "Username is not correct. Please try again.";
+			return new ModelAndView("redirect:/SignInForm", "message", message);
+		}
 	} 
 
 	@RequestMapping("/UserHomePage")  
-	public ModelAndView secondLink() {  
-//		String userName = currentUser.getName();
-//		String passWord = currentUser.getPassword();
-//		int points = currentUser.getPoints();
-//		String message = "Welcome to home " + userName + "!" + " Your password is: " + passWord + ".";
-		//String info = "Your current points are: " + currentUser.getPoints();
-		//System.out.println(currentUser.getPoints());
-		return new ModelAndView("UserHomePage", "user", currentUser);  
+	public ModelAndView secondLink(HttpServletRequest request,HttpServletResponse res) {  
+		String name = request.getParameter("name");
+//		User u = userList.get(name);
+		User u = userDao.getUser(name);
+		return new ModelAndView("UserHomePage", "user", u);  
 	} 
 }  
