@@ -1,5 +1,9 @@
 package com.javatpoint;
-
+/**
+ * This is a user class
+ * @author LuyiYang
+ *
+ */
 public class User {  
 	private int id;  
 	private String name;  
