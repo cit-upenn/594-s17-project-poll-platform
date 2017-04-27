@@ -1,0 +1,13 @@
+----------------------------------------------------------------
+Mon Apr 24 18:42:24 EDT 2017:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.13.1.1 - (1765088): instance a816c00e-015b-a221-50bb-0000060eaa78 
+on database directory /Users/LuyiYang/Documents/HelloWorld/zadb with class loader sun.misc.Launcher$AppClassLoader@4554617c 
+Loaded from file:/Users/LuyiYang/Downloads/derby.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_112-b16
+user.dir=/Users/LuyiYang/Documents/HelloWorld
+os.name=Mac OS X
+os.arch=x86_64
+os.version=10.11.6
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
