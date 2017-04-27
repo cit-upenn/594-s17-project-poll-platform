@@ -12,6 +12,11 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.database.*; 
 
+/**
+ * 
+ * @author Luyi 
+ *
+ */
 @Controller  
 public class UserController{  
 	PollPlatformDatabase db;
