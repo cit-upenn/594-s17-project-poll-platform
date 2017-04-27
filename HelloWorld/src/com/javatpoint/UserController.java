@@ -1,5 +1,7 @@
 package com.javatpoint;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -12,21 +14,11 @@ import com.database.*;
 
 @Controller  
 public class UserController{  
-//	UserDao userDao;
-//	PollDao pollDao;
 	PollPlatformDatabase db;
 
 
 	public UserController() throws ClassNotFoundException{	
 		db = new DerbyDatabase();
-//		pollDao = new PollDao();
-
-//		JdbcTemplate jdbcTemplate = DatabaseConfigurer.getInstance();
-//		this.userDao = new UserDao(jdbcTemplate);
-//		Poll p = new Poll();
-//		p.setPollTitle("Pizza");
-//		p.setPollContent("How do you like pizza?");
-//		db.postAPoll("luyiyang",p);
 	}
 
 	@RequestMapping("/SignInForm")  
@@ -34,7 +26,6 @@ public class UserController{
 		String message = request.getParameter("message");
 		return new ModelAndView("SignInForm","message",message);  
 	}
-
 
 	@RequestMapping("/SignUpForm")  
 	public ModelAndView signUpForm(){  
@@ -48,12 +39,8 @@ public class UserController{
 		String password=request.getParameter("password"); 
 
 		User user = new User(name, password);
-//		user.setPoints(50);
-		
 		db.addUser(user);
 		return new ModelAndView("redirect:/UserHomePage", "name", name);
-
-
 	}  
 
 	@RequestMapping("/signin")  
@@ -64,59 +51,53 @@ public class UserController{
 		User u = db.getUser(name);
 		if (u != null) {
 			if(u.getPassword().equals(password)){
-//				Cookie ck = new Cookie("user",name);
-//				res.addCookie(ck);
 				return new ModelAndView("redirect:/UserHomePage","name",name);
-//				return new ModelAndView("redirect:/UserHomePage");
-
 			}else{
 				String message = "Password is not correct. Please try again.";
 				return new ModelAndView("redirect:/SignInForm", "message", message);
 			}
 		}else{
 			String message = "Username is not correct. Please try again.";
-			return new ModelAndView("redirect:/SignInForm", "message", message);
+			return new ModelAndView("SignInForm", "message", message);
 		}
 	} 
 
 	@RequestMapping("/SeeMyPolls")  
 	public ModelAndView seeMyPollsPage(HttpServletRequest request,HttpServletResponse res){ 
 		String name = request.getParameter("name");
-		User u = db.getUser(name);
-//		String userId = request.getParameter("user");
-//		Object u = request.getSession().getAttribute(userId);
-//		User u = (User) request.getAttribute("user");
-//		System.out.println(((User) u).getName());
-		return new ModelAndView("SeeMyPolls", "user", u); 
+//		User u = db.getUser(name);
+//		return new ModelAndView("SeeMyPolls", "user", u);
+		return new ModelAndView("SeeMyPolls", "pollList", db.getPollsForUser(name)).addObject("name", name);
 	}
-	
+
 	@RequestMapping("/hiddenTest")
 	public ModelAndView hiddenTest(HttpServletRequest request,HttpServletResponse res) {
-		
 		String name = request.getParameter("user");
 		System.out.println(name);
 		System.out.println(request.getParameter("password"));
 		return new ModelAndView("SeeMyPolls", "user", db.getUser(name));
-		
 	}
-	
+
 
 	@RequestMapping("/SeeAvailablePolls")  
 	public ModelAndView seeAvailablePollsPage(HttpServletRequest request,HttpServletResponse res){
 		String name = request.getParameter("name");
-//		Cookie ck = request.getCookies()[0];
-//		String name = ck.getValue();
-//		res.addCookie(ck);
-		
-//		System.out.println(pollDao.findAllPolls().size());
-		return new ModelAndView("SeeAvailablePolls", "pollList", db.getAllPolls()).addObject("name", name); 
+		String tag = request.getParameter("tag");
+		List<Poll> list = null;
+		if(tag == null){
+			list = db.getAllPolls();
+		}else{
+			list = db.getTaggedPolls(tag);
+		}
+		return new ModelAndView("SeeAvailablePolls", "pollList", list).addObject("name", name); 
 	}
 
 	@RequestMapping("/CreateANewPoll")  
 	public ModelAndView createANewPollPage(HttpServletRequest request,HttpServletResponse res){ 
 		String name = request.getParameter("name");
-		User u = db.getUser(name);
-		return new ModelAndView("CreateANewPoll", "user", u); 
+//		User u = db.getUser(name);
+//		return new ModelAndView("CreateANewPoll", "user", u); 
+		return new ModelAndView("CreateANewPoll", "name", name); 
 	}
 
 	@RequestMapping("/createpoll")  
@@ -124,10 +105,13 @@ public class UserController{
 		String poster = request.getParameter("name");
 		String pollTitle = request.getParameter("pollTitle");
 		String pollContent = request.getParameter("content");
+		String polltag = request.getParameter("tag");
+		System.out.println(polltag);
 		Poll p = new Poll();
 		p.setPoster(poster);
 		p.setPollTitle(pollTitle);
 		p.setPollContent(pollContent);
+		p.setTag(polltag);
 		db.postAPoll(poster,  p);
 		System.out.println("new poll created!");
 		User u = db.getUser(poster);
@@ -138,38 +122,61 @@ public class UserController{
 	public ModelAndView userHomePage(HttpServletRequest request,HttpServletResponse res) {  
 		String message = request.getParameter("message");
 		String name = request.getParameter("name");
-//		Cookie ck[] = request.getCookies();
-//		String name = ck[0].getValue();
-//		System.out.print(ck.length);
 		User u = db.getUser(name);
-//		res.addCookie(ck[0]);
 		return new ModelAndView("UserHomePage", "user", u).addObject("message", message);  
 	} 
-	
+
 	@RequestMapping("/poll")  
 	public ModelAndView pollPage(HttpServletRequest request,HttpServletResponse res) {  
-//		Cookie uck = request.getCookies()[0];
 		int pid = Integer.parseInt(request.getParameter("pollId"));
 		String name = request.getParameter("name");
-		System.out.println(name);
 		Poll p = db.getPoll(pid);
-//		Cookie pck = new Cookie("poll",Integer.toString(pid));
-//		String name = uck.getValue();
-//		res.addCookie(uck);
-//		res.addCookie(pck);	
 		return new ModelAndView("poll", "poll", p).addObject("name", name);  
 	} 
 	
+	@RequestMapping("/pollResults")  
+	public ModelAndView pollResults(HttpServletRequest request,HttpServletResponse res) {  
+		int pid = Integer.parseInt(request.getParameter("pollId"));
+		String name = request.getParameter("name");
+		Poll p = db.getPoll(pid);
+		int numberOfPeopleVoted = 0;
+		Double total = 0.0;
+		for(int i = 0; i<p.getPollResults().length; i++){
+			total += p.getPollResults()[i]*(i+1);
+			numberOfPeopleVoted += p.getPollResults()[i];
+		}
+		Double average = total/numberOfPeopleVoted;
+		return new ModelAndView("pollResults", "poll", p).addObject("name", name).addObject("average", average).addObject("numberOfPeopleVoted", numberOfPeopleVoted);  
+	} 
+
 	@RequestMapping("/submitRating")  
 	public ModelAndView submitRating(HttpServletRequest request,HttpServletResponse res) {  
 		String message = "You have successfully submitted a poll.";
 		int rating = Integer.parseInt(request.getParameter("rating"));
-		System.out.println(rating);
+//		System.out.println(rating);
 		String name = request.getParameter("user");
-		System.out.println(name);
+//		System.out.println(name);
 		int pid = Integer.parseInt(request.getParameter("pollId"));
-		System.out.println(pid);
-		db.fillPoll(name, pid, rating);
-		return new ModelAndView("redirect:/UserHomePage","message", message).addObject("name", name);  
+//		System.out.println(pid);
+		User u = db.getUser(name);
+		int result = db.fillPoll(name, pid, rating);
+		if(result == -1){
+			message = "You have voted this poll. Try others!";
+		}
+		return new ModelAndView("UserHomePage","message", message).addObject("user", u);  
 	}
+	
+	@RequestMapping("/category")  
+	public ModelAndView seeCategory(HttpServletRequest request,HttpServletResponse res) {  
+		String name = request.getParameter("name");
+		String tag = request.getParameter("tag");
+		List<Poll> list = null;
+		if(tag == null){
+			list = db.getAllPolls();
+		}else{
+			list = db.getTaggedPolls(tag);
+		}
+		return new ModelAndView("SeeAvailablePolls", "pollList", list).addObject("name", name);  
+	}
+	
 }  

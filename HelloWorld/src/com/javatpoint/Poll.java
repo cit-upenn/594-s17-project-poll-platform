@@ -1,6 +1,6 @@
 package com.javatpoint;
 
-import java.util.HashMap;
+import java.util.Date;
 
 public class Poll {
 
@@ -9,6 +9,10 @@ public class Poll {
 	private String pollContent;
 	private String poster;
 	private int[] pollResults;
+	//tag field - "business"/ "science" / "health"/ "sports"/"arts"/"entertainment"/"life"/"others"
+	private String tag;
+	
+	private Date createdDate;
 
 	public Poll(){
 		pollId = 0;
@@ -16,6 +20,9 @@ public class Poll {
 		pollContent = null;
 		poster = null;
 		pollResults = new int[5];
+		
+		tag = null;
+		createdDate = null;
 	}
 
 	public int getPollId() {
@@ -58,5 +65,20 @@ public class Poll {
 		this.pollResults = pollResults;
 	}
 
+	public String getTag() {
+		return tag;
+	}
 
+	public void setTag(String tag) {
+		this.tag = tag;
+	}
+
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
+	}
+	
 }

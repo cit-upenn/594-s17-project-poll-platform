@@ -88,4 +88,11 @@ public interface PollPlatformDatabase {
 	 */
 	public List<Poll> getAllPolls();
 	
+	/**
+	 * This method gets all the polls with the given tag.
+	 * @param tag
+	 * @return
+	 */
+	public List<Poll> getTaggedPolls(String tag);
+	
 }

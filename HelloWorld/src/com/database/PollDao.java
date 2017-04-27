@@ -2,6 +2,8 @@ package com.database;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.List;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -16,8 +18,11 @@ public class PollDao {
 	}
 	
 	public int savePoll(Poll p) {
-		return jdbcTemplate.update("insert into poll (title, content, poster) values(?, ?, ?)", 
-				p.getPollTitle(), p.getPollContent(), p.getPoster());
+		Calendar calendar = Calendar.getInstance();
+		Timestamp timestamp = new Timestamp(calendar.getTime().getTime());
+		 
+		return jdbcTemplate.update("insert into poll (title, content, poster, tag, createdTime) values(?, ?, ?, ?, ?)", 
+				p.getPollTitle(), p.getPollContent(), p.getPoster(), p.getTag(), timestamp);
 	}
 	
 	public int deletePoll(int pollId) {
@@ -26,7 +31,7 @@ public class PollDao {
 	
 	
 	public Poll getPoll(int pollId) {
-		String query = "select id, title, content, poster, r1, r2, r3, r4, r5 from poll where id=?";
+		String query = "select id, title, content, poster, tag, createdTime, r1, r2, r3, r4, r5 from poll where id=?";
 		Poll poll;
 		try {
 			poll = (Poll) this.jdbcTemplate.queryForObject(query,new Object[] {pollId}, new PollMapper());
@@ -37,7 +42,7 @@ public class PollDao {
 	}
 	
 	public List<Poll> findAllPollsForUser(String posterName) {		
-		String query = "select id, title, content, poster, r1, r2, r3, r4, r5 from poll where poster = ?";	
+		String query = "select id, title, content, poster, tag, createdTime, r1, r2, r3, r4, r5 from poll where poster = ?";	
 		try {
 			return this.jdbcTemplate.query(query, new Object[] {posterName}, new PollMapper());
 		} catch (Exception e) {
@@ -46,7 +51,7 @@ public class PollDao {
 	}
 	
 	public List<Poll> findAllPolls() {
-		String query = "select id, title, content, poster, r1, r2, r3, r4, r5 from poll";
+		String query = "select id, title, content, poster, tag, createdTime, r1, r2, r3, r4, r5 from poll";
 		try {
 			return this.jdbcTemplate.query(query, new PollMapper());
 		} catch (Exception e) {
@@ -85,6 +90,15 @@ public class PollDao {
 		return this.jdbcTemplate.update(query, new Object[]{count, pollId});
 	}
 	
+	public List<Poll> findTaggedPolls(String tag) {
+		String query = "select id, title, content, poster, tag, createdTime, r1, r2, r3, r4, r5 from poll where tag = ?";	
+		try {
+			return this.jdbcTemplate.query(query, new Object[] {tag}, new PollMapper());
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
 	private static final class PollMapper implements RowMapper<Poll> {
 		@Override
 		public Poll mapRow(ResultSet resultSet, int rowNum) throws SQLException {
@@ -99,7 +113,9 @@ public class PollDao {
 			pollResults[2] = resultSet.getInt("r3");
 			pollResults[3] = resultSet.getInt("r4");
 			pollResults[4] = resultSet.getInt("r5");
+			poll.setTag(resultSet.getString("tag"));
 			poll.setPollResults(pollResults);
+			poll.setCreatedDate(resultSet.getTimestamp("createdTime"));
 			return poll;
 		}			
 	}	

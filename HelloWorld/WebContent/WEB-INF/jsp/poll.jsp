@@ -3,7 +3,7 @@
 <p>Hi ${name}</p>
 <p>Here is ${poll.getPollTitle()}:</p>
 <p>${poll.pollContent}:</p>
-
+<p>${poll.tag}</p>
 <form action="submitRating" method="post">
 <input type="radio" name="rating" value="1"> 1
 <input type="radio" name="rating" value="2"> 2

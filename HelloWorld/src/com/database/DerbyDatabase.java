@@ -85,4 +85,10 @@ public class DerbyDatabase implements PollPlatformDatabase {
 		return pollDao.findAllPolls();
 	}
 
+
+	@Override
+	public List<Poll> getTaggedPolls(String tag) {
+		return pollDao.findTaggedPolls(tag);
+	}
+
 }
