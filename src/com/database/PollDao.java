@@ -10,13 +10,29 @@ import org.springframework.jdbc.core.RowMapper;
 
 import com.javatpoint.Poll;
 
+/**
+ * This class manages the data access to the poll table.
+ * @author Jinyun
+ *
+ */
 public class PollDao {
 	private JdbcTemplate jdbcTemplate;
 	
+	/**
+	 * Constructor
+	 * Initialize the instance variable
+	 * @param jdbcTemplate
+	 */
 	public PollDao(JdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 	
+	/**
+	 * This method adds a new entry to the poll table when a new poll is saved.
+	 * It also adds the posted time in the entry.
+	 * @param p the given new poll object
+	 * @return return 1 if the poll is added successfully; return 0 if no poll is added
+	 */
 	public int savePoll(Poll p) {
 		Calendar calendar = Calendar.getInstance();
 		Timestamp timestamp = new Timestamp(calendar.getTime().getTime());
@@ -25,11 +41,20 @@ public class PollDao {
 				p.getPollTitle(), p.getPollContent(), p.getPoster(), p.getTag(), timestamp);
 	}
 	
+	/**
+	 * This method deletes a certain poll from the database.
+	 * @param pollId the given poll id
+	 * @return return 1 if the poll is successfully deleted; return 0 if no poll is affected
+	 */
 	public int deletePoll(int pollId) {
 		return jdbcTemplate.update("delete from poll where id = ?", pollId);
 	}
 	
-	
+	/**
+	 * Given the poll id, this method gets the poll out of the database.
+	 * @param pollId the given poll id
+	 * @return return the poll object
+	 */
 	public Poll getPoll(int pollId) {
 		String query = "select id, title, content, poster, tag, createdTime, r1, r2, r3, r4, r5 from poll where id=?";
 		Poll poll;
@@ -41,6 +66,11 @@ public class PollDao {
 		return poll; 
 	}
 	
+	/**
+	 * This method gets all the polls posted by the given user.
+	 * @param posterName the given user name
+	 * @return a list of polls the user has posted
+	 */
 	public List<Poll> findAllPollsForUser(String posterName) {		
 		String query = "select id, title, content, poster, tag, createdTime, r1, r2, r3, r4, r5 from poll where poster = ?";	
 		try {
@@ -50,6 +80,10 @@ public class PollDao {
 		}
 	}
 	
+	/**
+	 * This method gets all the polls in the database.
+	 * @return the list of all the polls
+	 */
 	public List<Poll> findAllPolls() {
 		String query = "select id, title, content, poster, tag, createdTime, r1, r2, r3, r4, r5 from poll";
 		try {
@@ -59,8 +93,13 @@ public class PollDao {
 		}
 	}
 	
-	//update poll after being rated
-	public int wasRated(int pollId, int score) {
+	/**
+	 * This method updates the poll results when a poll is rated.
+	 * @param pollId the given poll id
+	 * @param score the rating for the poll
+	 * @return return 1 if the results are updated successfully; return 0 if no poll is affected
+	 */
+	public int rated(int pollId, int score) {
 		String query = "";
 		Poll ratedPoll = getPoll(pollId);
 		int count = 0;
@@ -90,6 +129,11 @@ public class PollDao {
 		return this.jdbcTemplate.update(query, new Object[]{count, pollId});
 	}
 	
+	/**
+	 * This method gets the list of polls with the given tag.
+	 * @param tag the given tag
+	 * @return the list of polls with the tag
+	 */
 	public List<Poll> findTaggedPolls(String tag) {
 		String query = "select id, title, content, poster, tag, createdTime, r1, r2, r3, r4, r5 from poll where tag = ?";	
 		try {
@@ -99,6 +143,12 @@ public class PollDao {
 		}
 	}
 	
+	/**
+	 * This private class implements RowMapper interface.
+	 * It maps an entry of the poll table to the poll object.
+	 * @author Jinyun
+	 *
+	 */
 	private static final class PollMapper implements RowMapper<Poll> {
 		@Override
 		public Poll mapRow(ResultSet resultSet, int rowNum) throws SQLException {

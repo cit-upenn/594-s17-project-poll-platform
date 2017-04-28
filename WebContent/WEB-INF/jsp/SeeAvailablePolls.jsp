@@ -1,17 +1,39 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
-<p>Hi ${name}! Here are the polls:</p>
+<style type="text/css">
+html, 
+body {
+height: 100%;
+}
+body {
+background-image: url(http://pic1.win4000.com/wallpaper/f/586358d1b5e53.jpg);
+background-repeat: no-repeat;
+background-size: 100% 100%;
+	font-family:Monospace
+}
+</style>
+
+<%-- <form action="UserHomePage">
+<input type="submit" value = "Home Page"/>	
+<input type="hidden" name ="name" value="${name}" />
+</form> --%>
+<p style = "text-align: right">${name}|<a href="UserHomePage?name=${name}" target="_self">Homepage</a></p>
+
+<p><font size = "5">Hi ${name}!</font> </p>
+<p>Here are the polls:</p>
 
 <form action="category" method="post">
-<input type="submit" name ="tag" value="business">	
+tags | <input type="submit" name ="tag" value="business">	
 <input type="submit" name ="tag" value="science">
 <input type="submit" name ="tag" value="health">
 <input type="submit" name ="tag" value="sports">
 <input type="submit" name ="tag" value="arts">
 <input type="submit" name ="tag" value="entertainment">
 <input type="submit" name ="tag" value="life">
-<input type="submit" name ="tag" value="others">	
+<input type="submit" name ="tag" value="others">
+<input type="submit" name ="tag" value="most recent">		
+<input type="submit" name ="tag" value="all">	
 <input type="hidden" name="name" value="${name}" />						
 </form>
 

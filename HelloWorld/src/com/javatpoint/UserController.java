@@ -176,9 +176,16 @@ public class UserController{
 		String name = request.getParameter("name");
 		String tag = request.getParameter("tag");
 		List<Poll> list = null;
-		if(tag == null){
+		
+		if(tag == null || tag.equalsIgnoreCase("all")){
 			list = db.getAllPolls();
-		}else{
+		}
+		
+		else if(tag.equals("most recent")){
+			list = db.getAllPolls();
+		}
+		
+		else{
 			list = db.getTaggedPolls(tag);
 		}
 		return new ModelAndView("SeeAvailablePolls", "pollList", list).addObject("name", name);  

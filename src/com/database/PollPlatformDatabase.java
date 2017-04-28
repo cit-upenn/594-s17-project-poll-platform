@@ -1,5 +1,6 @@
 package com.database;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.javatpoint.Poll;
@@ -10,7 +11,7 @@ import com.javatpoint.User;
  * It defines the major functions of the database.
  * It wrappes up the classes that deal with the data in the database.
  * Users interact with the database by invoking the methods defined in the interface.
- * @author apple
+ * @author Jinyun
  *
  */
 public interface PollPlatformDatabase {
@@ -89,10 +90,17 @@ public interface PollPlatformDatabase {
 	public List<Poll> getAllPolls();
 	
 	/**
-	 * This method gets all the polls with the given tag.
-	 * @param tag
-	 * @return
+	 * This method gets all the polls with the specified tag.
+	 * @param tag the given tag
+	 * @return a list of the polls with the tag
 	 */
 	public List<Poll> getTaggedPolls(String tag);
+	
+	/**
+	 * This method gets the recent polls.
+	 * @param numNeeded the number of polls needed
+	 * @return a list of recent polls
+	 */
+	public ArrayList<Poll> getRecentPolls(int numNeeded);
 	
 }

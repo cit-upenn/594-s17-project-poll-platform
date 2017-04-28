@@ -1,5 +1,6 @@
 package com.javatpoint;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,7 +18,7 @@ public class UserController{
 	PollPlatformDatabase db;
 
 
-	public UserController() throws ClassNotFoundException{	
+	public UserController() throws ClassNotFoundException, SQLException{	
 		db = new DerbyDatabase();
 	}
 
@@ -39,8 +40,15 @@ public class UserController{
 		String password=request.getParameter("password"); 
 
 		User user = new User(name, password);
-		db.addUser(user);
-		return new ModelAndView("redirect:/UserHomePage", "name", name);
+		
+		if(db.addUser(user) != -1){
+			return new ModelAndView("redirect:/UserHomePage", "name", name);
+		}else{
+			String message = "Username is already in use. Please try again.";
+			return new ModelAndView("SignUpForm", "message", message);
+			
+		}
+		
 	}  
 
 	@RequestMapping("/signin")  
@@ -65,9 +73,10 @@ public class UserController{
 	@RequestMapping("/SeeMyPolls")  
 	public ModelAndView seeMyPollsPage(HttpServletRequest request,HttpServletResponse res){ 
 		String name = request.getParameter("name");
-//		User u = db.getUser(name);
-//		return new ModelAndView("SeeMyPolls", "user", u);
+		//		User u = db.getUser(name);
+		//		return new ModelAndView("SeeMyPolls", "user", u);
 		return new ModelAndView("SeeMyPolls", "pollList", db.getPollsForUser(name)).addObject("name", name);
+//		return new ModelAndView("SeeMyPolls", "name", name).addObject("pollList", db.getPollsForUser(name));
 	}
 
 	@RequestMapping("/hiddenTest")
@@ -95,8 +104,8 @@ public class UserController{
 	@RequestMapping("/CreateANewPoll")  
 	public ModelAndView createANewPollPage(HttpServletRequest request,HttpServletResponse res){ 
 		String name = request.getParameter("name");
-//		User u = db.getUser(name);
-//		return new ModelAndView("CreateANewPoll", "user", u); 
+		//		User u = db.getUser(name);
+		//		return new ModelAndView("CreateANewPoll", "user", u); 
 		return new ModelAndView("CreateANewPoll", "name", name); 
 	}
 
@@ -133,7 +142,7 @@ public class UserController{
 		Poll p = db.getPoll(pid);
 		return new ModelAndView("poll", "poll", p).addObject("name", name);  
 	} 
-	
+
 	@RequestMapping("/pollResults")  
 	public ModelAndView pollResults(HttpServletRequest request,HttpServletResponse res) {  
 		int pid = Integer.parseInt(request.getParameter("pollId"));
@@ -153,30 +162,39 @@ public class UserController{
 	public ModelAndView submitRating(HttpServletRequest request,HttpServletResponse res) {  
 		String message = "You have successfully submitted a poll.";
 		int rating = Integer.parseInt(request.getParameter("rating"));
-//		System.out.println(rating);
+		//		System.out.println(rating);
 		String name = request.getParameter("user");
-//		System.out.println(name);
+		//		System.out.println(name);
 		int pid = Integer.parseInt(request.getParameter("pollId"));
-//		System.out.println(pid);
-		User u = db.getUser(name);
+		//		System.out.println(pid);
 		int result = db.fillPoll(name, pid, rating);
+		User u = db.getUser(name);
+
 		if(result == -1){
 			message = "You have voted this poll. Try others!";
 		}
 		return new ModelAndView("UserHomePage","message", message).addObject("user", u);  
 	}
-	
+
 	@RequestMapping("/category")  
 	public ModelAndView seeCategory(HttpServletRequest request,HttpServletResponse res) {  
+		
 		String name = request.getParameter("name");
 		String tag = request.getParameter("tag");
 		List<Poll> list = null;
-		if(tag == null){
+
+		if(tag == null || tag.equalsIgnoreCase("all")){
 			list = db.getAllPolls();
-		}else{
+		}
+
+		else if(tag.equals("most recent")){
+			list = db.getRecentPolls(10);
+		}
+
+		else{
 			list = db.getTaggedPolls(tag);
 		}
 		return new ModelAndView("SeeAvailablePolls", "pollList", list).addObject("name", name);  
 	}
-	
+
 }  
