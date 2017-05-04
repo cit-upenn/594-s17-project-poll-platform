@@ -18,6 +18,12 @@ body {
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
 }
+
+p {
+    margin-right: 150px;
+    margin-left: 80px;
+}
+
 </style>
 </head>
 

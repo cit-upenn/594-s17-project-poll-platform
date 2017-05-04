@@ -1,6 +1,5 @@
 package com.database;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.javatpoint.Poll;
@@ -101,6 +100,27 @@ public interface PollPlatformDatabase {
 	 * @param numNeeded the number of polls needed
 	 * @return a list of recent polls
 	 */
-	public ArrayList<Poll> getRecentPolls(int numNeeded);
+	public List<Poll> getRecentPolls(int numNeeded);
+	
+	/**
+	 * This method gets the most popular polls.
+	 * @param numNeeded the number of polls needed
+	 * @return a list of recent polls
+	 */
+	public List<Poll> getPopularPolls(List<Poll> polls, int numNeeded);
+	
+	/**
+	 * This method gets the most highly rated polls.
+	 * @param numNeeded the number of polls needed
+	 * @return a list of recent polls
+	 */
+	public List<Poll> getHighlyRatedPolls(int numNeeded);
+	
+	/**
+	 * This method gets recommended polls for a certain user.
+	 * @param numNeeded the number of recommendations needed
+	 * @return a list ofrecommended polls
+	 */
+	public List<Poll> getRecommendations(String userName, int numNeeded);
 	
 }

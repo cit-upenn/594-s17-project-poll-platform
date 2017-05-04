@@ -12,8 +12,14 @@ background-repeat: no-repeat;
 background-size: 100% 100%;
 	font-family:Monospace
 }
+div {
+    margin-right: 10px;
+    margin-left: 30px;
+}
 </style>
-<p style = "text-align: right">${name}|<a href="UserHomePage?name=${name}" target="_self">Homepage</a></p>
+
+<div>
+<p style = "text-align: right">${name}|<a href="UserHomePage?name=${name}" target="_self">Homepage</a>|<a href="SignInForm.html" target="_self">Signout</a></p>
 <p><font size = "5">Hi ${name}! </font></p>
 <p>Here are your polls:</p>
 
@@ -28,3 +34,4 @@ background-size: 100% 100%;
 	<input type="hidden" name="name" value="${name}" /> 
 <%-- 	<input type="hidden" name="pollId" value="${poll.pollId}" /> --%>
 </form>
+</div>

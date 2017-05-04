@@ -9,16 +9,21 @@ background-repeat: no-repeat;
 background-size: 100% 100%;
 	font-family:Monospace
 }
+div {
+    margin-right: 10px;
+    margin-left: 30px;
+}
 </style>
 
 
+<div>
 <head>
 <script
 	src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
 <title>Result for ${poll.getPollTitle()}</title>
 </head>
 <body>
-<p style = "text-align: right">${name}|<a href="UserHomePage?name=${name}" target="_self">Homepage</a></p>
+<p style = "text-align: right">${name}|<a href="UserHomePage?name=${name}" target="_self">Homepage</a>|<a href="SignInForm.html" target="_self">Signout</a></p>
 	<p><font size = "5">Hi ${name}!</font></p>
 	<p>Here is the result for ${poll.getPollTitle()}:</p>
 	<p>Number of people voted: ${numberOfPeopleVoted}</p>
@@ -58,3 +63,4 @@ background-size: 100% 100%;
 		</script>
 	</div>
 </body>
+</div>

@@ -17,7 +17,10 @@ body {
 	background-size: 100% 100%;
 		font-family:Monospace
 }
+
+
 </style>
+
 
 <br><br><br><br><br>
 <center><p><font size="6" style="text-align: center" face="Impact" color="white"> POLL PLATFORM</font></p></center>
@@ -44,3 +47,4 @@ body {
 
 	<a href="SignUpForm.html">Don't have an account? Sign up here! </a>
 </div>
+

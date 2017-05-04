@@ -32,7 +32,7 @@ public class UserDao {
 	 */
 	public int saveUser(User newUser) {		
 		return jdbcTemplate.update("insert into pollUser (name, password, points) values (?, ?, ?)", 
-				newUser.getName(), newUser.getPassword(), newUser.getPoints());
+				newUser.getName(), newUser.getPassword(), 50);
 	}
 	
 	/**

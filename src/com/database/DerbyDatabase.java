@@ -3,9 +3,9 @@ package com.database;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
-
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.javatpoint.Poll;
@@ -18,6 +18,9 @@ import com.javatpoint.User;
  *
  */
 public class DerbyDatabase implements PollPlatformDatabase {
+	private final String[] tagArray = {"business", "science", "health", "sports", "arts", "entertainment", "life", "others"};
+	
+	private static DerbyDatabase derbyDatabase;
 	private JdbcTemplate jdbcTemplate;
 	private UserDao userDao;
 	private PollDao pollDao;
@@ -30,11 +33,19 @@ public class DerbyDatabase implements PollPlatformDatabase {
 	 * @throws ClassNotFoundException
 	 * @throws SQLException 
 	 */
-	public DerbyDatabase() throws ClassNotFoundException, SQLException {
+//	public DerbyDatabase() throws ClassNotFoundException, SQLException {
+	private DerbyDatabase() throws ClassNotFoundException, SQLException {
 		this.jdbcTemplate = DatabaseConfigurer.getInstance();
 		this.userDao = new UserDao(jdbcTemplate);
 		this.pollDao = new PollDao(jdbcTemplate);
 		this.filledPollsDao = new FilledPollsDao(jdbcTemplate);
+	}
+	
+	public static DerbyDatabase getInstance() throws ClassNotFoundException, SQLException {
+		if(derbyDatabase == null) {
+			derbyDatabase = new DerbyDatabase();
+		} 
+		return derbyDatabase;
 	}
 	
 	/**
@@ -157,4 +168,128 @@ public class DerbyDatabase implements PollPlatformDatabase {
 		return res;
 	}
 
+	/**
+	 * This method make recommendations for a certain user.
+	 * It is based on the types of polls the user has posted. 
+	 * If the user hasn't posted any poll, it will give the most popular polls.
+	 * Otherwise it will look at the type of polls the user has made most posts and make recommendations accordingly.
+	 */
+	@Override
+	public List<Poll> getRecommendations(String userName, int numNeeded) {
+		List<Poll> userPolls = getPollsForUser(userName);
+		
+		if(userPolls == null || userPolls.size() == 0) {
+			List<Poll> allPolls = getAllPolls();
+			return getPopularPolls(allPolls, numNeeded);
+		}
+		
+		int[] tagCounts = new int[8];
+		for (Poll p : userPolls) {
+			String tag = p.getTag();
+			if (tag == null) {
+				continue;
+			}
+			if(tag.equals(tagArray[0])) {
+				tagCounts[0]++;
+			} else if(tag.equals(tagArray[1])) {
+				tagCounts[1]++;
+			} else if(tag.equals(tagArray[2])) {
+				tagCounts[2]++;
+			} else if(tag.equals(tagArray[3])) {
+				tagCounts[3]++;
+			} else if(tag.equals(tagArray[4])) {
+				tagCounts[4]++;
+			} else if(tag.equals(tagArray[5])) {
+				tagCounts[5]++;
+			} else if(tag.equals(tagArray[6])) {
+				tagCounts[6]++;
+			} else {
+				tagCounts[7]++;
+			}
+		}
+		HashMap<String, Integer> tagCountMap = new HashMap<String, Integer>();
+		for(int i = 0; i < 8; i++) {
+			tagCountMap.put(tagArray[i], tagCounts[i]);
+		}
+		
+		int maxCount = 0;
+		String maxTag ="";
+		for(String tag : tagCountMap.keySet()) {
+			if(tagCountMap.get(tag) > maxCount) {
+				maxCount = tagCountMap.get(tag);
+				maxTag = tag;
+			}
+		}		
+		List<Poll> taggedPolls = getTaggedPolls(maxTag);		
+		return getPopularPolls(taggedPolls, numNeeded);
+	}
+	
+	/**
+	 * This method gets the most popular polls, i.e. the ones that have been rated by most people.
+	 */
+	@Override
+	public List<Poll> getPopularPolls(List<Poll> allPolls, int numNeeded) {		
+		PriorityQueue<Poll> maxHeap = new PriorityQueue<Poll>(new Comparator<Poll>() {
+			public int compare(Poll o1, Poll o2) {
+				int totalResult1 = 0;
+				int totalResult2 = 0;
+				
+				for(int i : o1.getPollResults()) {
+					totalResult1 += i;
+				}
+				for(int i : o2.getPollResults()) {
+					totalResult2 += i;
+				}
+				return totalResult2 - totalResult1;
+			}
+		});
+		for(Poll p : allPolls) {
+			maxHeap.add(p);
+		}
+		
+		ArrayList<Poll> result = new ArrayList<Poll>();
+		//if the size of maxHeap is smaller than numNeeded, return all the elements in maxHeap
+		int size = Math.min(numNeeded, maxHeap.size());
+		for(int i = 0; i < size; i++) {
+			Poll curPoll = maxHeap.poll();
+			result.add(curPoll);		
+		}		
+		return result;
+	}
+	
+	/**
+	 * This method gets the most highly rated polls.
+	 */
+	@Override
+	public List<Poll> getHighlyRatedPolls(int numNeeded) {
+		List<Poll> allPolls = getAllPolls();
+		PriorityQueue<Poll> maxHeap = new PriorityQueue<Poll>(new Comparator<Poll>() {
+			public int compare(Poll o1, Poll o2) {
+				int totalResult1 = 0;
+				int totalResult2 = 0;
+				int[] result1 = o1.getPollResults();
+				for(int i = 0; i < 5; i++) {
+					totalResult1 += ((i+1) * result1[i]);
+				}
+				int[] result2 = o2.getPollResults();
+				
+				for(int i = 0; i < 5; i++) {
+					totalResult2 += ((i+1) * result2[i]);
+				}
+				return totalResult2 - totalResult1;
+			}
+		});
+		for(Poll p : allPolls) {
+			maxHeap.add(p);
+		}
+		
+		ArrayList<Poll> result = new ArrayList<Poll>();
+		//if the size of maxHeap is smaller than numNeeded, return all the elements in maxHeap
+		int size = Math.min(numNeeded, maxHeap.size());
+		for(int i = 0; i < size; i++) {
+			Poll curPoll = maxHeap.poll();
+			result.add(curPoll);		
+		}		
+		return result;
+	}
 }

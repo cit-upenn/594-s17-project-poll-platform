@@ -12,13 +12,14 @@ background-repeat: no-repeat;
 background-size: 100% 100%;
 	font-family:Monospace
 }
+div {
+    margin-right: 10px;
+    margin-left: 30px;
+}
 </style>
 
-<%-- <form action="UserHomePage">
-<input type="submit" value = "Home Page"/>	
-<input type="hidden" name ="name" value="${name}" />
-</form> --%>
-<p style = "text-align: right">${name}|<a href="UserHomePage?name=${name}" target="_self">Homepage</a></p>
+<div>
+<p style = "text-align: right">${name}|<a href="UserHomePage?name=${name}" target="_self">Homepage</a>|<a href="SignInForm.html" target="_self">Signout</a></p>
 
 <p><font size = "5">Hi ${name}!</font> </p>
 <p>Here are the polls:</p>
@@ -41,3 +42,4 @@ tags | <input type="submit" name ="tag" value="business">
 	<a href="poll?pollId=${poll.pollId}&name=${name}">${poll.pollTitle}</a>
 	<br>
 </c:forEach>
+</div>
